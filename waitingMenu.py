@@ -10,6 +10,7 @@ import pymongo, os
 username = os.environ.get("USERNAME")
 password = os.environ.get("PASSWORD")
 databaseName = os.environ.get("DATABASE")
+clusterName = os.environ.get("CLUSTERA")
 
 class Window:
     dot = ' . '
@@ -61,6 +62,9 @@ class Window:
         
     
 class PreGame(Window):
+    cluster = pymongo.MongoClient(f"mongodb+srv://{username}:{password}@{clusterName}.y5mnt.mongodb.net/{databaseName}?retryWrites=true&w=majority")
+    db = cluster.insta  
+    
     def __init__(self, name, ip, procDiffu, window, width, height):
         super().__init__(window, width, height)
         self.name = name
@@ -83,9 +87,6 @@ class PreGame(Window):
         self.procClient.start()
         
         if self.ip == "127.0.0.1":
-            cluster = pymongo.MongoClient(f"mongodb+srv://{username}:{password}@cluster0.y5mnt.mongodb.net/{databaseName}?retryWrites=true&w=majority")
-            self.db = cluster.insta 
-             
             self.host = True
             
         else:
@@ -185,7 +186,6 @@ class PreGame(Window):
             D == Drawing
             L == Guessing
         """
-        
         for key, value in self.roles.items():
             if key == self.roleDrawing:
                 self.roles[key] = 'D'
@@ -210,7 +210,6 @@ class PreGame(Window):
                     
                     elif self.host:
                         self.getHostEvent(event, pos)
-                        
                         
             if self.launchGame:
                 self.clearWindow()
@@ -238,7 +237,6 @@ class PreGame(Window):
                 self.getNewRound()
             
             self.updateRole()
-            #print(self.roles, self.IDnumber)
             if self.roles[int(self.IDnumber)] == 'D':
                 game = DrawingPlayer(self.roundNumber, self.IDnumber, self.tunnelParent,
                                 self.players, self.scores, self.roles,

@@ -27,7 +27,7 @@ def client(ip, tunel, playerName):
         s.bind(('', 50000))
         while 1:
             data, ip_port = s.recvfrom(1500, 0)  #(b'Client OK', ('192.168.1.32', 62587))
-            if data.decode() == "SuperS":
+            if data.decode() == "GameOK":
                 break
             
         ip = ip_port[0]

@@ -5,11 +5,11 @@ from pygame.locals import *
 from multiprocessing import Process, Pipe
 from drawingPlayer import DrawingPlayer
 from guessingPlayer import GuessingPlayer
-import pymongo
+import pymongo, os
 
-username = 'florren'#os.environ.get("USERNAME")
-password = 'florren2k2'#os.environ.get("PASSWORD")
-databaseName = 'myFirstDatabase'#os.environ.get("DATABASE")
+username = os.environ.get("USERNAME")
+password = os.environ.get("PASSWORD")
+databaseName = os.environ.get("DATABASE")
 
 class Window:
     dot = ' . '
@@ -61,9 +61,6 @@ class Window:
         
     
 class PreGame(Window):
-    cluster = pymongo.MongoClient(f"mongodb+srv://{username}:{password}@cluster0.y5mnt.mongodb.net/{databaseName}?retryWrites=true&w=majority")
-    db = cluster.insta  
-    
     def __init__(self, name, ip, procDiffu, window, width, height):
         super().__init__(window, width, height)
         self.name = name
@@ -86,6 +83,9 @@ class PreGame(Window):
         self.procClient.start()
         
         if self.ip == "127.0.0.1":
+            cluster = pymongo.MongoClient(f"mongodb+srv://{username}:{password}@cluster0.y5mnt.mongodb.net/{databaseName}?retryWrites=true&w=majority")
+            self.db = cluster.insta 
+             
             self.host = True
             
         else:
@@ -141,12 +141,6 @@ class PreGame(Window):
                     self.roleDrawing = i['draw']
     
     def getHostEvent(self, event, pos):
-        """
-        Role: 
-            D == Drawing
-            L == Guessing
-        """
-        
         if event.type == MOUSEBUTTONDOWN and self.play_pos.collidepoint(pos):
             if len(self.players) >= 2:
                 if self.procDiffu.is_alive():
@@ -186,6 +180,12 @@ class PreGame(Window):
         pygame.display.flip()
         
     def updateRole(self):
+        """
+        Role: 
+            D == Drawing
+            L == Guessing
+        """
+        
         for key, value in self.roles.items():
             if key == self.roleDrawing:
                 self.roles[key] = 'D'
@@ -220,10 +220,8 @@ class PreGame(Window):
             clock.tick(5)
         
         if isConnected == False:
-            return
+            return True
 
-        print('Max round: ', self.maxRound)
-        #clock = pygame.time.Clock()
         while self.roundNumber < self.maxRound * 2:
             if self.host:
                 self.roundNumber += 1
@@ -240,7 +238,7 @@ class PreGame(Window):
                 self.getNewRound()
             
             self.updateRole()
-            print(self.roles, self.IDnumber)
+            #print(self.roles, self.IDnumber)
             if self.roles[int(self.IDnumber)] == 'D':
                 game = DrawingPlayer(self.roundNumber, self.IDnumber, self.tunnelParent,
                                 self.players, self.scores, self.roles,
@@ -252,35 +250,7 @@ class PreGame(Window):
                                     self.window, self.width, self.height)
                 
             self.players, self.scores, self.roles, self.roundNumber = game.run()
-                    
 
-        """
-        if self.roundNumber is not None:
-            if self.host:
-                self.roundNumber += 1
-                mess = f'R,{self.roundNumber}'
-                self.tunnelParent.send(mess.encode())
-                
-                print(mess)
-            
-            clock = pygame.time.Clock()
-            while True:
-                newRound = self.getNewRound()
-                if newRound and not self.host:
-                    self.roundNumber = newRound
-                
-                self.window.fill((255, 255, 255))
-                texteConn = self.large_font.render('Waiting for begin' + self.dot * self.dotAppear(), True, (0, 0, 0))
-                self.window.blit(texteConn, (0, 0))
-                
-                for event in pygame.event.get():
-                    if event.type == KEYDOWN:
-                        continue
-                   
-                print(self.roundNumber)
-                clock.tick(5)
-                pygame.display.flip()
-        """
         pygame.quit()
         if self.procClient.is_alive():
             self.procClient.join()

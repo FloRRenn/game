@@ -8,7 +8,7 @@ def connectionAgain(): #Khôi phục lại kết nối khi bị mất
     s.setsockopt(SOL_SOCKET, SO_BROADCAST, 1)
 
     while True:
-        s.sendto("SuperS".encode(), ('<broadcast>', 50000))
+        s.sendto("GameOK".encode(), ('<broadcast>', 50000))
         time.sleep(1)
 
 # Khỏi tạo server để nhận data từ client

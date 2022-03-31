@@ -1,16 +1,10 @@
-import pygame
+import pygame, time
 import client
 from random import choice
 from pygame.locals import *
 from multiprocessing import Process, Pipe
 from drawingPlayer import DrawingPlayer
 from guessingPlayer import GuessingPlayer
-import pymongo, os
-
-username = os.environ.get("USERNAME")
-password = os.environ.get("PASSWORD")
-databaseName = os.environ.get("DATABASE")
-clusterName = os.environ.get("CLUSTERA")
 
 class Window:
     dot = ' . '
@@ -20,11 +14,15 @@ class Window:
         self.width = width
         self.height = height
         
-        self.large_font = pygame.font.SysFont("roboto-bold", 65)
+        self.large_font = pygame.font.Font("font/dilo.ttf", 65)
         self.count = 0
         
         self.play = pygame.image.load("img/lobby/play.png")
         self.play_pos = self.play.get_rect(topright = (self.width - 15, 15))
+        
+        self.notEnoughSound = pygame.mixer.Sound("music/notEnough.wav")
+        self.roundBeginSound = pygame.mixer.Sound("music/newRound.wav")
+        
         
     def dotAppear(self):
         if self.count < 5:
@@ -62,9 +60,6 @@ class Window:
         
     
 class PreGame(Window):
-    cluster = pymongo.MongoClient(f"mongodb+srv://{username}:{password}@{clusterName}.y5mnt.mongodb.net/{databaseName}?retryWrites=true&w=majority")
-    db = cluster.insta  
-    
     def __init__(self, name, ip, procDiffu, window, width, height):
         super().__init__(window, width, height)
         self.name = name
@@ -130,17 +125,6 @@ class PreGame(Window):
                     return False
         return True
     
-    def getNewRound(self):
-        temp = self.roundNumber    
-        
-        while self.roundNumber == temp:
-            data = self.db['game'].find({})
-            
-            for i in data:
-                if i['round'] != self.roundNumber:
-                    self.roundNumber = i['round']
-                    self.roleDrawing = i['draw']
-    
     def getHostEvent(self, event, pos):
         if event.type == MOUSEBUTTONDOWN and self.play_pos.collidepoint(pos):
             if len(self.players) >= 2:
@@ -176,6 +160,9 @@ class PreGame(Window):
                 #LAUNCH GAME
                 self.launchGame = True
                 
+            else:
+                self.notEnoughSound.play()
+                
     def clearWindow(self):
         self.window.fill((255, 255, 255))
         pygame.display.flip()
@@ -191,7 +178,38 @@ class PreGame(Window):
                 self.roles[key] = 'D'
             else:
                 self.roles[key] = 'L'
-    
+                
+    def updateDataNextRound(self):
+        self.roleDrawing += 1
+        if self.roleDrawing > self.maxRound - 1:
+            self.roleDrawing = 0
+        self.roundNumber += 1
+        
+        data = f'I,{self.roleDrawing},{self.roundNumber}'
+        self.tunnelParent.send(data.encode())
+        
+        clientRecieved = 0
+        while clientRecieved != len(self.players) - 1:
+            if self.tunnelParent.poll():
+                abc = self.tunnelParent.recv()
+                data = abc.decode().split(",")
+                
+                if data[0] == 'ok':
+                    clientRecieved += 1
+                    
+    def getDataNextRound(self):
+        temp = self.roundNumber
+        
+        while temp == self.roundNumber:
+            if self.tunnelParent.poll():
+                abc = self.tunnelParent.recv()
+                data = abc.decode().split(",")
+                
+                if data[0] == 'I':
+                    self.roleDrawing = int(data[1])
+                    self.roundNumber = int(data[2])
+                    self.tunnelParent.send('ok,'.encode())
+                
     def run(self):
         isConnected = True
         clock = pygame.time.Clock()
@@ -218,25 +236,20 @@ class PreGame(Window):
                     
             clock.tick(5)
         
+        pygame.mixer.music.stop()
         if isConnected == False:
-            return True
-
-        while self.roundNumber < self.maxRound * 2:
+            return True   
+        
+        while self.roundNumber < self.maxRound:
             if self.host:
-                self.roundNumber += 1
-                self.roleDrawing += 1
-                if self.roleDrawing > self.maxRound - 1:
-                    self.roleDrawing = 0
-                
-                self.db['game'].update_one({'round' : self.roundNumber - 1}, {'$set' : {'round' : self.roundNumber, 'draw' : self.roleDrawing}})
-                
-                mess = f'Y,{self.roundNumber}'
-                self.tunnelParent.send(mess.encode())
-            
-            else:            
-                self.getNewRound()
+                self.updateDataNextRound()
+
+            else:           
+                self.getDataNextRound() 
             
             self.updateRole()
+            self.roundBeginSound.play()
+            
             if self.roles[int(self.IDnumber)] == 'D':
                 game = DrawingPlayer(self.roundNumber, self.IDnumber, self.tunnelParent,
                                 self.players, self.scores, self.roles,
@@ -248,6 +261,33 @@ class PreGame(Window):
                                     self.window, self.width, self.height)
                 
             self.players, self.scores, self.roles, self.roundNumber = game.run()
+            print(self.players, self.scores)
+            
+        scoreBoard = {}
+        for i in range(len(self.players)):
+            scoreBoard[self.players[i]] = self.scores[i]
+        scoreBoard = {player: score for player, score in sorted(scoreBoard.items(), key = lambda item: item[1], reverse = True)} # Decreasing order by score
+        endTime = time.time() + 30
+        
+        print(scoreBoard, endTime)
+        self.clearWindow()
+        while True:
+            timer = endTime - time.time()
+            if timer < 0:
+                break
+            
+            yMsg = 100
+            top = 1
+            for player, score in scoreBoard.items(): 
+                display = self.large_font.render(f'Top {top}. {player} : {score}', True, (0, 0, 0))
+                self.window.blit(display, (300, yMsg))
+                yMsg += 60
+                top += 1
+                
+            for event in pygame.event.get():
+                continue
+            
+            pygame.display.flip()
 
         pygame.quit()
         if self.procClient.is_alive():

@@ -10,8 +10,8 @@ class Window(object):
         self.width = width
         self.height = height
         
-        self.bt_red = self.bt_yellow = self.bt_green = self.bt_blue = None
-        self.bt_rose = self.bt_brown = self.bt_black = self.bt_white = None
+        self.bt_red = self.bt_yellow = self.bt_green = self.bt_blue = self.bt_orange = None
+        self.bt_pink = self.bt_brown = self.bt_black = self.bt_white = self.bt_purple = None
         self.bt_largerBrush = self.bt_smallerBrush = self.bt_clear = None
         
         self.eraser_image = pygame.image.load("img/gomme1.png").convert_alpha()
@@ -20,55 +20,62 @@ class Window(object):
         self.circle_2 = pygame.image.load("img/pal2.png").convert_alpha()
         self.brush = pygame.image.load("img/pinceau.png").convert()
         
-        self.small_font = pygame.font.SysFont("roboto-bold", 35)
-        self.large_font = pygame.font.SysFont("roboto-bold", 70)
+        self.small_font = pygame.font.Font("font/Ingame.otf", 35)
+        self.large_font = pygame.font.Font("font/dilo.ttf", 50)
         
     def drawButton(self):
-        pygame.draw.rect(self.window, Color.white, (1820, 500, 100, 100))
-        pygame.draw.rect(self.window, Color.white, (1720, 500, 100, 100))
-        self.bt_red = pygame.draw.rect(self.window, Color.red, (1820, 100, 100, 100))
-        self.bt_green = pygame.draw.rect(self.window, Color.green, (1720, 100, 100, 100))
-        self.bt_white = pygame.draw.rect(self.window, Color.white, (1820, 200, 100, 100))
-        self.bt_black = pygame.draw.rect(self.window, Color.black, (1720, 200, 100, 100))
-        self.bt_brown = pygame.draw.rect(self.window, Color.brown, (1820, 300, 100, 100))
-        self.bt_rose = pygame.draw.rect(self.window, Color.rose, (1720, 300, 100, 100))
+        pygame.draw.rect(self.window, Color.white, (1820, 500, 100, 200))
+        pygame.draw.rect(self.window, Color.white, (1720, 500, 100, 200))
+        
+        self.bt_green  = pygame.draw.rect(self.window, Color.green, (1720, 100, 100, 100))
+        self.bt_black  = pygame.draw.rect(self.window, Color.black, (1720, 200, 100, 100))
+        self.bt_pink   = pygame.draw.rect(self.window, Color.pink, (1720, 300, 100, 100))
+        self.bt_blue   = pygame.draw.rect(self.window, Color.blue, (1720, 400, 100, 100))
+        self.bt_orange = pygame.draw.rect(self.window, Color.orange, (1720, 500, 100, 100))
+        
+        self.bt_red    = pygame.draw.rect(self.window, Color.red, (1820, 100, 100, 100))
+        self.bt_white  = pygame.draw.rect(self.window, Color.white, (1820, 200, 100, 100))
+        self.bt_brown  = pygame.draw.rect(self.window, Color.brown, (1820, 300, 100, 100))
         self.bt_yellow = pygame.draw.rect(self.window, Color.yellow, (1820, 400, 100, 100))
-        self.bt_blue = pygame.draw.rect(self.window, Color.blue, (1720, 400, 100, 100))
+        self.bt_purple = pygame.draw.rect(self.window, Color.purple, (1820, 500, 100, 100))
+    
         self.window.blit(self.eraser_image, (1830, 220))
         
-        self.bt_largerBrush = pygame.draw.circle(self.window, Color.black, (1870, 550), 35)
-        self.bt_smallerBrush = pygame.draw.circle(self.window, Color.black, (1770, 550), 15) 
+        self.bt_largerBrush = pygame.draw.circle(self.window, Color.black, (1870, 650), 35)
+        self.bt_smallerBrush = pygame.draw.circle(self.window, Color.black, (1770, 650), 15) 
         
     def drawBoard(self, roundNumber):
         entete = pygame.draw.rect(self.window, Color.grey, (400, 0, 1920, 100))
         tab = pygame.draw.rect(self.window, Color.grey, (0, 0, 390, 1920))
+        underline = pygame.draw.rect(self.window, Color.black, (10, 60, 340, 5))
         left_line = pygame.draw.rect(self.window, Color.grey, (0, 980, 1920, 1920))
-        highlight = pygame.draw.rect(self.window, Color.black, (10, 50, 340, 5))
-        right_line = pygame.draw.rect(self.window, Color.grey, (1720, 600, 200, 1000))
+        right_line = pygame.draw.rect(self.window, Color.grey, (1720, 700, 200, 1000))
         
         line1 = pygame.draw.rect(self.window, Color.black, (390, 0, 10, 980))
-        line2 = pygame.draw.rect(self.window, Color.black, (0, 970, 1920, 10))
         line12 = pygame.draw.rect(self.window, Color.black, (390, 100, 1920, 5))
-        line3 = pygame.draw.rect(self.window, Color.black, (1720, 100, 1000, 5))
+        line2 = pygame.draw.rect(self.window, Color.black, (0, 970, 1920, 10))
+        line9 = pygame.draw.rect(self.window, Color.black, (1720, 100, 10, 1000))
+        line10 = pygame.draw.rect(self.window, Color.black, (1820, 100, 5, 500))
+        
+        
+        """
         line4 = pygame.draw.rect(self.window, Color.black, (1720, 200, 1000, 5))
-        line5 = pygame.draw.rect(self.window, Color.black, (1720, 300, 1000, 5))
+        
+        
         line6 = pygame.draw.rect(self.window, Color.black, (1720, 400, 1000, 5))
         line7 = pygame.draw.rect(self.window, Color.black, (1720, 500, 1000, 5))
         line8 = pygame.draw.rect(self.window, Color.black, (1720, 600, 1000, 5))
         line9 = pygame.draw.rect(self.window, Color.black, (1720, 100, 10, 1000))
         line10 = pygame.draw.rect(self.window, Color.black, (1820, 100, 5, 500))
         line11 = pygame.draw.rect(self.window, Color.black, (1915, 100, 5, 500))
+        """
         
         round_number = self.large_font.render(f'Round {roundNumber}', True, (0, 0, 0))
         self.window.blit(round_number, (1300, 40))  
         
-        self.bt_clear = pygame.draw.rect(self.window, Color.white, (1720, 10, 190, 80))
+        self.bt_clear = pygame.draw.rect(self.window, Color.white, (1700, 10, 200, 80))
         clearText = self.small_font.render("Clear a Board", True, (0, 0, 0))
-        self.window.blit(clearText, (1745, 40))    
-        
-    def timer_display(self, time):
-        timer_display = self.large_font.render(str(int(time)), True, (0, 0, 0))
-        self.window.blit(timer_display, (1810, 610))
+        self.window.blit(clearText, (1703, 35))    
         
     def infoDisplay(self, radius, color_text, color):
         radius_diplay = self.large_font.render('radius : ' + str(radius), True, (0, 0, 0))
@@ -81,6 +88,12 @@ class Window(object):
         self.drawButton()
         self.drawBoard(round_number)
         self.infoDisplay(radius, color_text, color)
+        
+    def timerDisplay(self, time):
+        if time < 0:
+            time = 0
+        timer_display = self.large_font.render(str(time), True, (0, 0, 0))
+        self.window.blit(timer_display, (1810, 800))
 
 class DrawingPlayer(Window):
     roundTime = 60
@@ -213,10 +226,10 @@ class DrawingPlayer(Window):
         pygame.draw.rect(self.window, Color.white, (400, 105, 1320, 865))
         
     def clearBoard(self):
-        pygame.draw.rect(self.window, Color.black, (1720, 10, 190, 5))
-        pygame.draw.rect(self.window, Color.black, (1720, 10, 5, 80))
-        pygame.draw.rect(self.window, Color.black, (1910, 10, 5, 80))
-        pygame.draw.rect(self.window, Color.black, (1720, 85, 190, 5))
+        pygame.draw.rect(self.window, Color.black, (1700, 10, 200, 5))
+        pygame.draw.rect(self.window, Color.black, (1700, 10, 5, 80))
+        pygame.draw.rect(self.window, Color.black, (1900, 10, 5, 80))
+        pygame.draw.rect(self.window, Color.black, (1700, 85, 200, 5))
         
         if pygame.mouse.get_pressed() == (1, 0, 0):
             pygame.draw.rect(self.window, Color.white, (400, 105, 1320, 865))
@@ -264,11 +277,17 @@ class DrawingPlayer(Window):
         elif self.bt_brown.collidepoint(pos):
             self.selection(self.bt_brown, Color.brown, 'Brown')
             
-        elif self.bt_rose.collidepoint(pos):
-            self.selection(self.bt_rose, Color.rose, 'Rose')
+        elif self.bt_pink.collidepoint(pos):
+            self.selection(self.bt_pink, Color.pink, 'Pink')
             
         elif self.bt_blue.collidepoint(pos):
             self.selection(self.bt_blue, Color.blue, 'Blue')
+            
+        elif self.bt_orange.collidepoint(pos):
+            self.selection(self.bt_orange, Color.orange, 'Orange')
+            
+        elif self.bt_purple.collidepoint(pos):
+            self.selection(self.bt_purple, Color.purple, 'Purple')
             
         elif self.bt_largerBrush.collidepoint(pos):
             self.selection_circle1()
@@ -283,17 +302,11 @@ class DrawingPlayer(Window):
         guessedWord_display = self.large_font.render(self.guessedWord, True, (0, 0, 0))
         self.window.blit(guessedWord_display, (1400, 1000))
         
-    def timerDisplay(self, time):
-        if time < 0:
-            time = 0
-        timer_display = self.large_font.render(str(time), True, (0, 0, 0))
-        self.window.blit(timer_display, (1810, 610))
-        
     def updateChat(self, list_msg_chat):
         for chat in range(10):
             list_msg_chat = list_msg_chat[-10:]
             textchat = self.small_font.render(list_msg_chat[chat], True, (0, 0, 0))
-            self.window.blit(textchat, (50, 480 + 50 * chat))
+            self.window.blit(textchat, (30, 480 + 50 * chat))
             
     def playerDisplay(self):
         onlinePlater_display = self.large_font.render('Online players : ', True, (0, 0, 0))  # txt,antialiasing,coul
@@ -302,7 +315,7 @@ class DrawingPlayer(Window):
         
         for player in self.players:
             playerName_display = self.large_font.render(self.players[player] + " : " + str(self.scores[player]), True, (0, 0, 0))
-            self.window.blit(playerName_display, (10, 60 + pos_txtPlayer * 50))
+            self.window.blit(playerName_display, (10, 70 + pos_txtPlayer * 50))
             
             if self.roles[player] == "D":
                 self.window.blit(self.brush, (340, 60 + pos_txtPlayer * 50))

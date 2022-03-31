@@ -33,8 +33,8 @@ class Home:
         self.height = ctypes.windll.user32.GetSystemMetrics(1)
         self.window = pygame.display.set_mode((self.width, self.height))#, pygame.FULLSCREEN)
         
-        self.large_font = pygame.font.SysFont("roboto-bold", 65)
-        self.small_font = pygame.font.SysFont("roboto-bold", 35)
+        self.large_font = pygame.font.Font("font/dilo.ttf", 80)
+        self.small_font = pygame.font.Font("font/dilo.ttf", 40)
         
         self.logo1 = pygame.image.load("img/lobby/logo1.png")
         self.logo2 = pygame.image.load("img/lobby/logo2.png")
@@ -64,6 +64,11 @@ class Home:
         self.ip = '0.0.0.0'
         self.name = ''
         
+        # Song in home
+        pygame.mixer.music.load("music/home.mp3")
+        pygame.mixer.music.play(loops=-1)
+        pygame.mixer.music.set_volume(0.1)
+        
     def checkIP(self, IP : str):
         try:          
             res = ipaddress.ip_address(IP)
@@ -71,7 +76,6 @@ class Home:
         
         except:
             return False
-
      
     def draw(self, pos):
         self.window.fill(bgColor)
@@ -101,24 +105,24 @@ class Home:
             
         elif self.hostMenu:
             display = self.large_font.render('Enter your nickname : ' + self.name + self.bar, True, (0, 0, 0))
-            self.window.blit(display, (400, 530))
+            self.window.blit(display, (200, 530))
             
         elif self.joinMenu:    
             if self.joinWithIP:
                 if self.IpMenu:
                     textIP = self.large_font.render("Enter the IP address of the server : " + self.ip + self.bar, True, (0, 0, 0))
-                    self.window.blit(textIP, (400, 530))
+                    self.window.blit(textIP, (200, 530))
                 
                 else:
                     display = self.large_font.render('Enter your nickname : ' + self.name + self.bar, True, (0, 0, 0))
-                    self.window.blit(display, (400, 530))
+                    self.window.blit(display, (200, 530))
                     
             elif self.joinWithLAN:
                 display = self.large_font.render('Enter your nickname : ' + self.name + self.bar, True, (0, 0, 0))
-                self.window.blit(display, (400, 530))
+                self.window.blit(display, (200, 530))
                 
             else:
-                self.IP_button = TextButton('Join with IP', (0, 0, 0), (int(self.width / 2), 510), self.large_font)
+                self.IP_button = TextButton('Join with IP', (0, 0, 0), (int(self.width / 2), 410), self.large_font)
                 self.IP_button.draw(self.window, pos)
                 
                 self.LAN_button = TextButton('Join with LAN', (0, 0, 0), (int(self.width / 2), 610), self.large_font)
@@ -200,7 +204,6 @@ class Home:
             self.getEvent(pos)     
             
             if self.launchGame:
-                print(self.name, ' - ', self.ip)
                 g = Game(self.name, self.ip.strip(), self.procDiffu, 
                          self.window, self.width, self.height)
 
@@ -213,5 +216,7 @@ class Home:
             
 if __name__ == '__main__':
     pygame.font.init()
+    pygame.init()
+    
     g = Home()
     g.run() 
